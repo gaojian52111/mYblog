@@ -1,5 +1,1 @@
 theme: jekyll-theme-cayman
-deploy:
-  type: github
-  repository: git@github.com:gaojian52111/gaojian52111.github.com.git
-  branch: master
