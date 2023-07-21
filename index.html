@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>关键词筛选工具</title>
+        <script src="/xlsx.js"></script>
+
+    </head>
+    <body>
+        <input type="file" id="excelFile" />
+        <table id="excelTable"></table>
+        <button onclick="check()">对比并显示没有用到的关键词</button>
+        <div id="contain">
+            <div id="left">
+                <textarea onKeyUp="checkWord(this)" onMouseDown="checkWord(this)" id="tLeft" rows="30" cols="50" maxlength="2000"></textarea>
+                <div width="100%">
+                    <text id="lText">字数</text>
+                </div>
+               
+            </div>
+            <div id="right">
+                <div width="100%">
+                    <textarea  onKeyUp="checkWord(this)" onMouseDown="checkWord(this)" id="tRightTop" rows="30" cols="50" maxlength="2000" ></textarea>
+                    <div width="100%">
+                        <text id="rText">字数</text>
+                    </div>
+                </div>
+                <div width="100%">
+                    <textarea  onKeyUp="checkWord(this)" onMouseDown="checkWord(this)" id="tRightDown" rows="30" cols="50" maxlength="2000" ></textarea>
+                    <div width="100%">
+                        <text id="rText">字数</text>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            document.getElementById('excelFile').addEventListener('change', handleFile, false);
+            var dataArr = []
+            function handleFile(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    // TODO: 处理EXCEL数据
+                    console.log(jsonData)
+                    var antistopDataArr = [];
+                    let index = 0 ;
+                    jsonData.forEach(element => {
+                        if(index==0){
+                            index++;
+                        }else{
+                            antistopDataArr.push(element[1])
+                        }
+                       
+                    });
+                    dataArr = antistopDataArr;
+                    console.log(antistopDataArr)
+                    let str =""
+                    antistopDataArr.forEach(element => {
+                        str += element + "\n" 
+                    });
+                    // str = str.replace(/\r/ig,'').replace(/\n/ig,'<br/>')
+                    let tLeft = document.getElementById("tLeft")
+                    console.log(tLeft)
+                    // str = "AM-CNE全球特惠"
+                    tLeft.innerHTML = str
+                    checkWord(tLeft)
+                };
+                
+                reader.readAsArrayBuffer(file);
+
+            }
+            var maxstrlen = 2000;
+            function checkWord(c) {
+                maxstrlen = c.maxLength
+                len = maxstrlen;
+                var str = c.value;
+                myLen = getStrleng(str);
+                // document.getElementById("lText").innerHTML = myLen
+                var wck = $('#' + c.id).next();
+                if (myLen > len * 2) {
+                    c.value = str.substring(0, i + 1);
+                } else {
+                    wck.html(maxstrlen - Math.floor((len * 2 - myLen) / 2) + "/" + maxstrlen)
+                }
+            }
+            function getStrleng(str) {
+                myLen = 0;
+                i = 0;
+                for (; (i < str.length) && (myLen <= maxstrlen * 2); i++) {
+                    // if (str.charCodeAt(i) > 0 && str.charCodeAt(i) < 128)
+                    //     myLen++;
+                    // else
+                    //     myLen += 2;
+                    myLen += 2;
+                }
+                return myLen;
+            }
+
+            function check(){
+                let lostArr = [];
+                // let strLeft = document.getElementById("tLeft").value
+                // strLeft = strLeft.replace(/\r/ig,'').replace(/\n/ig,' ')
+                // dataArr = strLeft.split(' ');
+
+                let str = document.getElementById("tRightTop").value;
+                dataArr.forEach(element => {
+                    if(str.search(element)!=-1){
+
+                    }else{
+                        lostArr.push(element)
+                    }
+                    
+                });
+                console.log(lostArr)
+                var lostStr = ""
+                lostArr.forEach(element => {
+                    lostStr+= element + "\n"
+                });
+                var tRightDown = document.getElementById("tRightDown")
+                tRightDown.innerHTML = lostStr
+                checkWord(tRightDown)
+            }
+        </script>
+    </body>
+    <style>
+        h1 {color:#00ff00;}
+        #contain {
+            background-color: aqua;
+            width: 100%;
+            height: 100%;
+            
+        }
+        #left{
+                background-color: #641acd;
+                width: 50%;
+                height: 100%;
+                float: left;
+            }
+        #right{
+            background-color: #cd1a62;
+            width: 50%;
+            height: 100%;
+            float: left;
+        }
+        .fname{
+            width: 100%;
+            height: 50%;
+            background-color: #767d81;
+            
+        }
+
+    </style>
+</html>
